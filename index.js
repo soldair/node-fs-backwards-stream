@@ -12,6 +12,9 @@ module.exports = function(file,opts){
   , block = opts.block||1024
   , doread = true
   , reading = false
+  , shorterFirst = opts.shorterFirst || false
+
+  var fileSizeInBytes = fs.statSync(file).size;
 
   fs.open(file,'r',function(err,fd){
     if(err) return s.emit('error',err);
@@ -65,22 +68,26 @@ module.exports = function(file,opts){
 
   s._readLoop = function (){
     if(s.pos === undef) return;
-    (function fn(){
+    var sizeFirstRead = block;
+    if (opts.shorterFirst) {
+      sizeFirstRead = fileSizeInBytes % block;
+    }    
+    (function fn(blockSize){
 
-      if(s.remaining < block) block = s.remaining;
+      if(s.remaining < blockSize) blockSize = s.remaining;
 
-      var pos = s.pos-block;
+      var pos = s.pos-blockSize;
 
-      read(s.fd,block,pos,function(err,bytesRead,buf){
+      read(s.fd,blockSize,pos,function(err,bytesRead,buf){
 
         s.pos -= bytesRead;
         s.remaining -= bytesRead;
 
         if(err) return;
         if(!s.remaining) return s.queue(null)
-        if(doread) fn();
+        if(doread) fn(block);
       })
-    }())
+    }(sizeFirstRead))
   }
 
   function read(fd,size,pos,cb){

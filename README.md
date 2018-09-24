@@ -28,11 +28,13 @@ options
 -------
 
 - start
- - where to start reading. defaults to the end of the file
+  - where to start reading. defaults to the end of the file
 
 - end
   - where to stop reading. defaults to 0. ie i start from 1000 and stop at 10
 
 - block
-  - number of bytes to read at a time
+  - number of bytes to read at a time (default: 1024 bytes)
 
+- shorterFirst
+  - if the filesize is not a multiple of the blocksize, make the first block read (from the nd of the file) shorter, instead of the last (in the beginning of the file) (default: false)
