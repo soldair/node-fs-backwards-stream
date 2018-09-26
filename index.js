@@ -92,7 +92,7 @@ module.exports = function(file,opts){
 
   function read(fd,size,pos,cb){
     reading = true;
-    fs.read(fd,new Buffer(size),0,size,pos,function(err,bytesRead,buf){
+    fs.read(fd,Buffer.alloc?Buffer.alloc(size):new Buffer(size),0,size,pos,function(err,bytesRead,buf){
       reading = false;
       if(!err) s.queue(buf)
       process.nextTick(function(){
